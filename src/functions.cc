@@ -96,18 +96,21 @@ class ReceiveMessageWorker : public AsyncWorker {
     void HandleOKCallback () {
       Local<Value> argv[] = {
         Null(),
-        Null()
+        Null(),
+        Null(),
       };
 
       if (bufferLength == (size_t) -1) {
         argv[0] = CreateError("Failed to receive message", error);
       } else {
         argv[1] = Nan::CopyBuffer(message->mtext, bufferLength).ToLocalChecked();
+        v8::Isolate* isolate = v8::Isolate::GetCurrent();
+        argv[2] = v8::Number::New(isolate, (double)message->mtype);
       }
 
       free(message);
 
-      callback->Call(2, argv);
+      callback->Call(3, argv);
     }
 
   private:
